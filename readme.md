@@ -6,8 +6,8 @@ This repository aims to provide a covenient way of importing the Monero Blockcha
 **IMPORTANT:** This Readme file has not yet been fully updated to reflect the changes in the code.
 ## 1. Monero Blockchain Data Export
 
-- Install the [Monero software](https://github.com/monero-project/monero/releases), start the daemon and wait for the node to synchronize
-- Install the [requests](https://pypi.python.org/pypi/requests) python library: `pip install requests`
+- Install the [Monero software](https://www.getmonero.org/downloads/#cli), start the daemon and wait for the node to synchronize
+- Install the python dependencies: `pip install -r requirements.txt`
 - Run the `monero-to-csv.py` script (i.e., `python monero-to-csv.py`)
 
 
