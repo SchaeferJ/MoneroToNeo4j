@@ -1,18 +1,24 @@
 from monerorpc import MoneroRPCInterface
 import csv
+from tqdm import trange
 
 rpc_interface = MoneroRPCInterface()
 
 OUTPUT_COUNTER = {}
 TX_COUNTER = 0
 INPUT_COUNTER = 0
-MAX_BLOCK = 1288774 + 1 
 
 
 def get_blocks_and_transactions():
-    for height in range(MAX_BLOCK):
-        print(str(height))
 
+    blockchain_info = rpc_interface.get_height()
+    if blockchain_info["status"] != "OK":
+        raise Exception("Unknown Error: Deamon returned blockchain status "+ blockchain_info["status"])
+    MAX_BLOCK = blockchain_info["height"]
+    print("\033[96mINFO: Exporting blockchain until block with hash " + blockchain_info["hash"] + " at height " +
+          str(blockchain_info["height"]) + "\033[0m")
+
+    for height in trange(MAX_BLOCK):
         # create block
         monero_block = rpc_interface.get_block(height)
         write_block(monero_block)
@@ -23,7 +29,8 @@ def get_blocks_and_transactions():
 
         # create coinbase transaction
         coinbase_id = get_new_tx_id()
-        write_transaction(coinbase_id)
+        write_transaction(coinbase_id, tx_hash=monero_block.coinbase.tx_hash, in_degree=monero_block.coinbase.in_degree,
+                          out_degree=monero_block.coinbase.out_degree, extra=monero_block.coinbase.extra)
         write_transaction_rel(coinbase_id, height)
 
         # add outputs
@@ -37,7 +44,7 @@ def get_blocks_and_transactions():
             for mtx in monero_txs:
                 tx_id = get_new_tx_id()
 
-                write_transaction(tx_id, tx_hash=mtx.tx_hash, fee=mtx.fee)
+                write_transaction(tx_id, tx_hash=mtx.tx_hash, fee=mtx.fee, in_degree=mtx.in_degree, out_degree=mtx.out_degree, extra=mtx.extra)
                 write_transaction_rel(tx_id, height)
 
                 for vin in mtx.inputs:
@@ -56,10 +63,12 @@ def create_output(vout, tx_id):
     else:
         index = 0
         OUTPUT_COUNTER[value] = 1
-    output_id = create_output_id(value=value, index=index)
+    #output_id = create_output_id(value=value, index=index)
 
-    write_output(output_id, value, index)
-    write_output_rel(tx_id, output_id)
+    #write_output(output_id, value, index, stealth_address=vout.stealthAddress)
+    #write_output_rel(tx_id, output_id)
+    write_output(vout.stealthAddress, value, index)
+    write_output_rel(tx_id, vout.stealthAddress)
 
 
 def create_input(vin, tx_id):
@@ -67,16 +76,15 @@ def create_input(vin, tx_id):
     input_id = get_new_input_id()
     value = vin.amount
     size_anon = OUTPUT_COUNTER[value]
-    mixin = len(vin.offsets) - 1
-    write_input(input_id, value, mixin, size_anon)
+    mixin = len(vin.references) - 1
+    write_input(input_id, value, mixin, size_anon, key_image=vin.key_image)
     write_input_rel(tx_id, input_id)
 
-    offset = 0
-    references = []
-    for it in vin.offsets:
-        offset += it
-        references.append(create_output_id(value=value, index=offset))
-    write_referenced_outputs(input_id=input_id, output_ids=references)
+    #reference_list = []
+    #for ref in vin.references:
+    #    reference_list.append(ref)
+    reference_list = [r for r in vin.references]
+    write_referenced_outputs(input_id=input_id, output_ids=reference_list)
 
 
 def get_new_tx_id():
@@ -91,8 +99,8 @@ def get_new_input_id():
     return "i" + str(INPUT_COUNTER - 1)
 
 
-def create_output_id(value, index):
-    return str(value) + "-" + str(index)
+#def create_output_id(value, index):
+#    return str(value) + "-" + str(index)
 
 
 def write_block(block):
@@ -101,10 +109,10 @@ def write_block(block):
         writer.writerow([block.height, block.height, block.block_hash, block.timestamp])
 
 
-def write_transaction(tx_id, tx_hash="", fee=0):
+def write_transaction(tx_id, tx_hash="", fee=0, in_degree=0, out_degree=0, extra=""):
     with open("csv/transactions.csv", "a") as f:
         writer = csv.writer(f)
-        writer.writerow([tx_id, tx_hash, fee])
+        writer.writerow([tx_id, tx_hash, fee, in_degree, out_degree, extra])
 
 
 def write_transaction_rel(tx_id, height):
@@ -131,10 +139,10 @@ def write_output_rel(tx_id, output_id):
         writer.writerow([tx_id, output_id])
 
 
-def write_input(input_id, value, mixin, size_anon):
+def write_input(input_id, value, mixin, size_anon, key_image):
     with open("csv/inputs.csv", "a") as f:
         writer = csv.writer(f)
-        writer.writerow([input_id, value, mixin, size_anon])
+        writer.writerow([input_id, value, mixin, size_anon, key_image])
 
 
 def write_input_rel(tx_id, input_id):

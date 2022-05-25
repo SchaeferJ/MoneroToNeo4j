@@ -1,1 +1,1 @@
-:ID,hash:string,fee:long
+:ID,hash:string,fee:long,in_degree:int,out_degree:int,extra:string
