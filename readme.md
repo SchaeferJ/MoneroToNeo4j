@@ -1,17 +1,9 @@
 ## Overview
 
-This repository contains source code underlying our [empirical analysis of traceability in the Monero blockchain](https://arxiv.org/pdf/1704.04299.pdf).
-
-Reproducing the deducibility analysis involves the following steps:
-
-1. Export blockchain data from a fully synchronized Monero node
-2. Import the data into a Neo4j database using the Neo4j batch importer
-3. Create database indices and run the Sudoku algorithm
-4. Querying the database
-
-This repository does not contain the simulation of the different mixin-sampling procedures. It can be found at [kvnl33/monero-simulations](https://github.com/kvnl33/monero-simulations) instead.
+This repository aims to provide a covenient way of importing the Monero Blockchain into a Neo4j Graph Database for Blockchain Analysis. It is a fork of [Malte Möser's code](https://github.com/maltemoeser/moneropaper) that has been slightly updated to support the RingCT transactions currently used by Monero.
 
 
+**IMPORTANT:** This Readme file has not yet been fully updated to reflect the changes in the code.
 ## 1. Monero Blockchain Data Export
 
 - Install the [Monero software](https://github.com/monero-project/monero/releases), start the daemon and wait for the node to synchronize
@@ -40,30 +32,3 @@ Imported:
   109326559 properties
 Peak memory usage: 1.51 GB
 ```
-
-
-## 3. Database Indexes and Mixin Sudoku
-
-- Compile the Neo4j plugin in the `neo4j-plugin` folder: `mvn package`
-- Put the resulting `mixinsudoku.jar` into the `plugins` folder of your Neo4j installation
-- Download the [APOC plugin](https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/3.2.0.4) and also put it into the `plugins` folder
-- Allow unrestricted access by adding `dbms.security.procedures.unrestricted=mixinsudoku.*,apoc.*` to your Neo4j config
-- Start the database
-- Run the following cypher commands (through the web interface or the command line interface)
-    - `CALL mixinsudoku.schema()`: creates all necessary indexes (you can check the status with `:SCHEMA`)
-    - `CALL mixinsudoku.coinbase()`: adds labels for coinbase transactions
-- Run the mixin sudoku in two steps (run the second query only *after* the first one has finished):
-    1. `CALL mixinsudoku.zeromixin()`: labels all outputs spent by 0-mixin transactions
-    2. `CALL mixinsudoku.sudoku()`: iteratively labels further deducable outputs
-- Run `CALL mixinsudoku.checkdb()` as a sanity check at the end
-
-
-## 4. Jupyter notebook
-
-- Install the following Python modules:
-    - `pip install jupyter`
-    - `pip install pandas`
-    - `pip install seaborn`
-    - `pip install py2neo`
-- Launch the notebook server: `jupyter notebook &`
-- Open *Monero Analysis.ipynb* in the notebook interface
