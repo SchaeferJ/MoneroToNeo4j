@@ -4,6 +4,17 @@ This repository aims to provide a covenient way of importing the Monero Blockcha
 
 
 **IMPORTANT:** This Readme file has not yet been fully updated to reflect the changes in the code.
+
+## 0. System requirements ##
+
+The code should be platform independent, however it has only been tested on Ubuntu.
+- At least 250 GB of storage, SSD highly recommended 
+  - Size of Monero Blockchain: ~ 140 GB (May 2022)
+  - Size of CSV Files: XXX GB
+  - Size of Database: XXX GB
+- A fast internet connection for syncing the Monero node
+
+
 ## 1. Monero Blockchain Data Export
 
 - Install the [Monero software](https://www.getmonero.org/downloads/#cli), start the daemon and wait for the node to synchronize
@@ -13,7 +24,7 @@ This repository aims to provide a covenient way of importing the Monero Blockcha
 
 ## 2. Neo4j Import
 
-- Download and/or install the [Neo4j graph database v3.4.5](https://neo4j.com/download-thanks/?edition=community&release=3.4.5&flavour=unix)
+- Download and/or install the [Neo4j graph database](https://neo4j.com/docs/operations-manual/current/installation/)
 - You should now have a folder structure similar to this:
     - `./csv/`: the Monero blockchain export (CSV files)
     - `./csv-headers/`: the CSV header files
