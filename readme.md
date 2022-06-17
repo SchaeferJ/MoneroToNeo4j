@@ -48,10 +48,24 @@ Peak memory usage: 2.240GiB
 The key difference to the original code is that this fork supports RingCT transactions. Implementation-wise, the dictionary lookup
 mapping the key indexes to outputs was replaced with an RPC-Call.
 
-Also, some additional features were added as node labels:
+Also, some additional features were added as node labels in Neo4j:
 - In-Degree, Out-Degree and Tx-Extra for Transactions
 - Stealth Addresses for Outputs
 - Key Images for Inputs
+
+Furthermore, the Transaction-Class now stores significantly more information. There are class variables for 
+- Transaction Version
+- RingCT Use
+- RingCT Version
+- Transaction Extra and its parsed components:      
+  - Padding Length
+  - TX Public Key
+  - Payment IDs (plaintext and encoded)
+  - Extra Nonce
+  - Merge Mining Data
+  - Additional Pubkeys
+  - Minergate Data
+- Transaction Size
 
 While the original code used output IDs to reference output-nodes, this fork 
 references them based on their stealth address. This causes a minor problem in
