@@ -96,7 +96,8 @@ class MoneroRPCInterface(object):
         # https://monero.stackexchange.com/questions/11550/where-are-the-input-keys-stored-for-a-transaction-understanding-vin-field
         index_list = []
         key_offset = 0
-        if version == 1:
+        # Pre-RingCT Transactions and Transactions that are RingCT but input non-RingCT outputs
+        if version == 1 or (version == 2 and vin["key"]["amount"] > 0):
             for index in vin["key"]["key_offsets"]:
                 key_offset += index
                 index_list.append({"index": key_offset, "amount": amount})
