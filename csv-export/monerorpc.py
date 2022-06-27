@@ -206,7 +206,6 @@ class MoneroTransaction(object):
 
     def __parse_extra(self, extra):
         pointer = 0
-        extra_contents = {}
         while pointer < len(extra) - 2:
             first_byte = extra[pointer:pointer + 2]
             if first_byte == "00":  # Padding at end of extra
@@ -249,7 +248,6 @@ class MoneroTransaction(object):
                 pointer += (4 + field_size * 2)
             else:
                 raise Exception("Invalid tag")
-        return extra_contents
 
 class MoneroOutput(object):
     def __init__(self, amount, stealth_address):
