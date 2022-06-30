@@ -211,7 +211,9 @@ class MoneroTransaction(object):
             if first_byte == "00":  # Padding at end of extra
                 padding = extra[pointer + 2:]
                 assert len(padding) % 2 == 0
-                assert all(v == '0' for v in padding)
+                # Technically, Padding must be all zero-bytes, but this does not seem to be enforced, see e.g.
+                # Transaction 97ef64005b33f2ff9764b5537ad565159bc95419b07a3070e90a63ac7f5c9988
+                #assert all(v == '0' for v in padding)
                 self.len_padding = len(padding) / 2
                 pointer = len(extra)
             elif first_byte == "01":  # Pubkey, 32 byte
