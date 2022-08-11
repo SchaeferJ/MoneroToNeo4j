@@ -242,14 +242,15 @@ class MoneroTransaction(object):
                 for i in range(key_count):
                     key_list.append(extra[pointer + 4 + i * 32 * 2:pointer + 4 + (i + 1) * 32 * 2])
                 self.pubkey_additional = key_list
-                pointer += (4 + (i + 1) * 32 * 2)
+                pointer += (4 + key_count * 32 * 2)
             elif first_byte.upper() == "DE":  # Mysterious Minergate
                 field_size = int(extra[pointer + 2:pointer + 4], 16)
                 assert field_size <= 255
                 self.minergate = extra[pointer + 4:pointer + 4 + field_size * 2]
                 pointer += (4 + field_size * 2)
             else:
-                raise Exception("Invalid tag")
+                print("Invalid tag")
+                pointer = len(extra)
 
 class MoneroOutput(object):
     def __init__(self, amount, stealth_address):
