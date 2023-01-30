@@ -185,8 +185,14 @@ class MoneroTransaction(object):
             self.in_degree = 0
 
         for vout in obj["vout"]:
+            tag = None
+            if "tagged_key" in vout["target"].keys():
+                key = vout["target"]["tagged_key"]["key"]
+                tag = vout["target"]["tagged_key"]["view_tag"]
+            else:
+                key =  vout["target"]["key"]
             self.outputs.append(
-                MoneroOutput(vout["amount"], vout["target"]["key"])
+                MoneroOutput(vout["amount"], key, tag)
             )
 
         self.out_degree = len(self.outputs)
@@ -253,9 +259,10 @@ class MoneroTransaction(object):
                 pointer = len(extra)
 
 class MoneroOutput(object):
-    def __init__(self, amount, stealth_address):
+    def __init__(self, amount, stealth_address, tag):
         self.amount = amount
         self.stealthAddress = stealth_address
+        self.tag = tag
 
 
 class MoneroInput(object):
